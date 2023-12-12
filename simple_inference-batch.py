@@ -15,7 +15,7 @@ import clip
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # choose GPU if you are on a multi-GPU server
 
 # Specify the folder containing images
-img_folder = r"C:\Users\CHP_7575\Documents\Image_Scripts\improved-aesthetic-predictor-batch"
+img_folder = r"C:\Users\Test\Documents\Image_Scripts\improved-aesthetic-predictor-batch"
 
 # Get a list of image paths in the folder
 img_paths = [os.path.join(img_folder, img_name) for img_name in os.listdir(img_folder) if img_name.lower().endswith(('.jpg', '.jpeg', '.png'))]
