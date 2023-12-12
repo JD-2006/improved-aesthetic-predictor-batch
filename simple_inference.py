@@ -1,40 +1,21 @@
-import webdataset as wds
-from PIL import Image
-import io
-import matplotlib.pyplot as plt
 import os
-import json
-
-from warnings import filterwarnings
-
-
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"    # choose GPU if you are on a multi GPU server
-import numpy as np
+from PIL import Image
 import torch
+from torch.nn import functional as F
+from warnings import filterwarnings
+import numpy as np
 import pytorch_lightning as pl
 import torch.nn as nn
 from torchvision import datasets, transforms
 import tqdm
-
 from os.path import join
-from datasets import load_dataset
-import pandas as pd
-from torch.utils.data import Dataset, DataLoader
 import json
-
 import clip
 
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"    # choose GPU if you are on a multi GPU server
 
-from PIL import Image, ImageFile
-
-
-#####  This script will predict the aesthetic score for this image file:
-
+# This script will predict the aesthetic score for this image file:
 img_path = "test.jpg"
-
-
-
-
 
 # if you changed the MLP architecture during training, change it also here:
 class MLP(pl.LightningModule):
@@ -116,7 +97,23 @@ im_emb_arr = normalized(image_features.cpu().detach().numpy() )
 
 prediction = model(torch.from_numpy(im_emb_arr).to(device).type(torch.cuda.FloatTensor))
 
+# Create an empty list to store results
+results = []
+
+# Iterate through images with tqdm processing bar
+for img_path in tqdm.tqdm([img_path], desc="Processing images"):
+    pil_image = Image.open(img_path)
+    image = preprocess(pil_image).unsqueeze(0).to(device)
+
+    with torch.no_grad():
+        image_features = model2.encode_image(image)
+
+    im_emb_arr = normalized(image_features.cpu().detach().numpy())
+
+    prediction = model(torch.from_numpy(im_emb_arr).to(device).type(torch.cuda.FloatTensor))
+
+    # Append the result (score, file_name) to the list
+    results.append((prediction.item(), os.path.basename(img_path)))
+
 print( "Aesthetic score predicted by the model:")
 print( prediction )
-
-
